@@ -4,3 +4,9 @@ namespace: dyndns
 resources:
 - ../../base
 - sealed-secret-domains.yaml
+patches:
+ - target:
+      version: v1
+      kind: ConfigMap
+      name: dynsdns-config
+   path: configmap-patch.yaml
