@@ -21,7 +21,6 @@ spec:
                   name: dynsdns-config
                   key: redis-host
             - name: REDIS_DB
-              value: "0"
               valueFrom:
                 configMapKeyRef:
                   name: dynsdns-config
