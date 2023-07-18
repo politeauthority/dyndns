@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dyndns
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+            - name: harbor
+          containers:
+          - name: dyndns
+            image: harbor.squid-ink.us/politeauthority/dyndns:0.0.1
+            imagePullPolicy: Always
+            env:
+            - name: REDIS_HOST
+              value: "q-redis.cluster.local"
+            - name: REDIS_DB
+              value: "0"
+            - name: REDIS_PASS
+              value: "redis-password"
+            - name: DOMAIN_FILE
+              value: "/config/domains.json"
+            volumeMounts:
+            - name: domain-config
+              mountPath: /config
+            command:
+              - python3
+              - /app/dyndns.py
+          restartPolicy: OnFailure
+          volumes:
+            - name: domain-config
+              secret:
+                secretName: domain-config

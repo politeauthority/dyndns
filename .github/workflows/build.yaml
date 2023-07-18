@@ -44,7 +44,7 @@ jobs:
           username: politeauthority
           password: ${{ secrets.DOCKER_TOKEN }}
   
-      - name: Push Container - Harbor
+      - name: Push Container - Docker Hub
         run: |
           IMAGE_ID=$(docker images --filter "reference=dyndns" --format "{{.ID}}")
           docker tag ${IMAGE_ID} politeauthority/dyndns:0.0.1
