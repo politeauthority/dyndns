@@ -1,0 +1,72 @@
+name: Build and Test
+
+on:
+  push:
+    branches: ["main", "actions"]
+
+jobs:
+  test:
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: politeauthority
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Validate Kustomize Builds
+        run: |
+          echo "Testing Kustomize builds"
+          kustomize build kubernetes-manifests/base/
+          kustomize build kubernetes-manifests/env/generic
+          kustomize build kubernetes-manifests/env/colfax
+
+  build:
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: politeauthority
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Container
+        run: |
+          echo "Building"
+          docker build . -t dyndns
+
+      - uses: docker/login-action@v2
+        with:
+          registry: harbor.squid-ink.us
+          username: politeauthority
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Push Container - Harbor
+        run: |
+          IMAGE_ID=$(docker images --filter "reference=dyndns" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/dyndns:0.0.1
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/dyndns:latest
+          docker push harbor.squid-ink.us/politeauthority/dyndns:0.0.1
+          # docker push politeauthority/dyndns:0.0.1
+          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** ```harbor.squid-ink.us/politeauthority/dyndns:0.0.1```" >> $GITHUB_STEP_SUMMARY
+      
+      - uses: docker/login-action@v2
+        with:
+          username: politeauthority
+          password: ${{ secrets.DOCKER_TOKEN }}
+  
+      - name: Push Container - Docker Hub
+        run: |
+          IMAGE_ID=$(docker images --filter "reference=dyndns" --format "{{.ID}}")
+          docker tag ${IMAGE_ID} politeauthority/dyndns:0.0.1
+          docker tag ${IMAGE_ID} politeauthority/dyndns:latest
+          docker push politeauthority/dyndns:0.0.1
+          docker push politeauthority/dyndns:latest
+          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** ```politeauthority/dyndns:0.0.1```" >> $GITHUB_STEP_SUMMARY

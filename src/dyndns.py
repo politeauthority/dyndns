@@ -23,6 +23,7 @@ log.addHandler(handler)
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_DB = os.environ.get("REDIS_DB")
 REDIS_PASS = os.environ.get("REDIS_PASS")
+DOMAIN_FILE = os.environ.get("DOMAIN_FILE")
 
 
 class DynDns:
@@ -63,23 +64,24 @@ class DynDns:
         exit(0)
 
     def get_domain_config(self):
-        domain_file = "domains.json"
-        if not os.path.exists(domain_file):
-            logging.critical("Cannot find domain config file: %s" % domain_file)
+        """Load the domain file into a class var."""
+        if not os.path.exists(DOMAIN_FILE):
+            logging.critical("Cannot find domain config file: %s" % DOMAIN_FILE)
             exit(1)
 
-        the_file = open(domain_file)
+        the_file = open(DOMAIN_FILE)
         try:
             domain_json = json.loads(the_file.read())
         except json.decoder.JSONDecodeError as e:
-            logging.critical("Could not parse file: %s. Got error: %s" % (domain_file, e))
+            logging.critical("Could not parse file: %s. Got error: %s" % (DOMAIN_FILE, e))
             exit(1)
         self.domains = domain_json["domains"]
         return True
 
     def connect_to_redis(self):
+        logging.info("Connecting to Redis Host: %s")
         try:
-            self.r = redis.Redis(host='localhost', port=6379, db=0)
+            self.r = redis.Redis(host=REDIS_HOST, port=6379, db=REDIS_DB)
         except Exception as e:
             logging.crtiical(
                 "Cannot connect to redis host: %s REDIS_HOST on DB: %s. %s" % (

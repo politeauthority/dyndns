@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dyndns
+resources:
+  - ../../base
+  - sealed-secret-domains.yaml
+patches:
+  - target:
+      kind: CronJob
+    patch: |-
+      - op: add
+        path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
+        value: [{ name: harbor }]
+  - target:
+      kind: CronJob
+    patch: |-
+      - op: replace
+        path: /spec/jobTemplate/spec/template/spec/containers/0/image
+        value: harbor.squid-ink.us/politeauthority/dyndns:0.0.1
+  - target:
+      version: v1
+      kind: ConfigMap
+      name: dynsdns-config
+    path: patch-configmap.yaml
+  - target:
+      version: batch/v1
+      kind: CronJob
+      name: dyndns
+    path: patch-cronjob.yaml

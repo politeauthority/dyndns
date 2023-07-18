@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dynsdns-config
+data:
+  redis-host: "localhost"
+  redis-db: "0"
