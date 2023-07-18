@@ -16,9 +16,16 @@ spec:
             imagePullPolicy: Always
             env:
             - name: REDIS_HOST
-              value: "q-redis.cluster.local"
+              valueFrom:
+                configMapKeyRef:
+                  name: dynsdns-config
+                  key: redis-host
             - name: REDIS_DB
               value: "0"
+              valueFrom:
+                configMapKeyRef:
+                  name: dynsdns-config
+                  key: redis-db
             - name: REDIS_PASS
               value: "redis-password"
             - name: DOMAIN_FILE
