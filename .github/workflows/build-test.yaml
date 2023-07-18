@@ -1,10 +1,28 @@
-name: Build
+name: Build and Test
 
 on:
   push:
     branches: ["main", "actions"]
 
 jobs:
+  test:
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: politeauthority
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Validate Kustomize Builds
+        run: |
+          echo "Testing Kustomize builds"
+          kustomize build kubernetes-manifests/base/
+          kustomize build kubernetes-manifests/env/generic
+          kustomize build kubernetes-manifests/env/colfax
+
   build:
     runs-on: self-hosted
     container:
@@ -16,7 +34,6 @@ jobs:
       fail-fast: true
     steps:
       - uses: actions/checkout@v3
-
 
       - name: Build Container
         run: |

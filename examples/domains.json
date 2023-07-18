@@ -1,0 +1,13 @@
+{
+	"domains": [{
+			"domain": "example.com",
+			"host": "*",
+			"password": "some-hash-i-got"
+		},
+		{
+			"domain": "example.com",
+			"host": "@",
+			"password": "some-hash-i-got"
+		}
+	]
+}
