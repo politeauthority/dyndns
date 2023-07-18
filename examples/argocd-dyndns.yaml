@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dyndns
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/politeauthority/dyndns.git'
+    path: kubernetes-manifests/env/colfax
+    targetRevision: main
+  destination:
+    namespace: dyndns
+    name: in-cluster
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
