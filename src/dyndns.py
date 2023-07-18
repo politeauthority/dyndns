@@ -79,8 +79,9 @@ class DynDns:
         return True
 
     def connect_to_redis(self):
+        logging.info("Connecting to Redis Host: %s")
         try:
-            self.r = redis.Redis(host='localhost', port=6379, db=0)
+            self.r = redis.Redis(host=REDIS_HOST, port=6379, db=REDIS_DB)
         except Exception as e:
             logging.crtiical(
                 "Cannot connect to redis host: %s REDIS_HOST on DB: %s. %s" % (
