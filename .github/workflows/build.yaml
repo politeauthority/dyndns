@@ -2,13 +2,13 @@ name: Build
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "actions"]
 
 jobs:
   build:
     runs-on: self-hosted
     container:
-      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
       credentials:
         username: politeauthority
         password: ${{ secrets.HARBOR_PASSWORD }}
