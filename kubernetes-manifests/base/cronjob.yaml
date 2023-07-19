@@ -21,9 +21,9 @@ spec:
                   key: redis-host
             - name: REDIS_DB
               valueFrom:
-              configMapKeyRef:
-                name: dynsdns-config
-                key: redis-db
+                configMapKeyRef:
+                  name: dynsdns-config
+                  key: redis-db
             - name: REDIS_PASS
               value: "redis-password"
             - name: DOMAIN_FILE
