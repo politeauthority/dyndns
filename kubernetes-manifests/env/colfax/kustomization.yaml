@@ -5,25 +5,33 @@ resources:
   - ../../base
   - sealed-secret-domains.yaml
 patches:
-  # - target:
-  #     kind: CronJob
-  #   patch: |-
-  #     - op: add
-  #       path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
-  #       value: [{ name: harbor }]
+  # Pull from docker hub for now
+  - target:
+      kind: CronJob
+    patch: |-
+      - op: replace
+        path: /spec/jobTemplate/spec/template/spec/containers/0/image
+        value: politeauthority/dyndns:0.0.1
+  - target:
+      kind: CronJob
+    patch: |-
+      - op: add
+        path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
+        value: [{ name: docker-hub }]
   # - target:
   #     kind: CronJob
   #   patch: |-
   #     - op: replace
   #       path: /spec/jobTemplate/spec/template/spec/containers/0/image
   #       value: harbor.squid-ink.us/politeauthority/dyndns:0.0.1
+  # - target:
+  #     kind: CronJob
+  #   patch: |-
+  #     - op: add
+  #       path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
+  #       value: [{ name: harbor }]
   - target:
       version: v1
       kind: ConfigMap
       name: dynsdns-config
     path: patch-configmap.yaml
-  - target:
-      version: batch/v1
-      kind: CronJob
-      name: dyndns
-    path: patch-cronjob.yaml

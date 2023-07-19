@@ -1,7 +1,7 @@
 # DynDns
 ![Build/Test](https://github.com/politeauthority/dyndns/actions/workflows/build-test.yaml/badge.svg)
 
-A DynDns Service on Kubernetes. There a lots of ways to do dynamic DNS, this is how I decided to do
+A DynDns service for Kubernetes. There a lots of ways to do dynamic DNS, this is how I decided to do
 it.
 
 ## What it Does
