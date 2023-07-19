@@ -5,12 +5,12 @@ resources:
   - ../../base
   - sealed-secret-domains.yaml
 patches:
-  - target:
-      kind: CronJob
-    # patch: |-
-    #   - op: add
-    #     path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
-    #     value: [{ name: harbor }]
+  # - target:
+  #     kind: CronJob
+  #   patch: |-
+  #     - op: add
+  #       path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
+  #       value: [{ name: harbor }]
   # - target:
   #     kind: CronJob
   #   patch: |-
