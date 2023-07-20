@@ -22,7 +22,7 @@ domains.
     ```
     **OR** if you use sealed secrets.
     ```bash
-    kubectl create secret generic controller-manager \
+    kubectl create secret generic domain-config \
         -o yaml \
         -n dyndns \
         --dry-run=client \
