@@ -24,11 +24,15 @@ REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_DB = os.environ.get("REDIS_DB")
 REDIS_PASS = os.environ.get("REDIS_PASS")
 DOMAIN_FILE = os.environ.get("DOMAIN_FILE")
+NOTIFY_URL = os.environ.get("NOTIFY_URL")
+NOTIFY_PASS = os.environ.get("NOTIFY_PASS")
 
 
 class DynDns:
 
     def __init__(self):
+        self.force = False
+        self.send_notifications = True
         self.domains = []
         self.connect_to_redis()
 
@@ -38,7 +42,7 @@ class DynDns:
         force = False
         if len(args) > 1:
             if args[1] == "-f" or args[1] == "--force":
-                force = True
+                self.force = True
 
         last_ip_change_date = self.get_last_ip_change_date()
         wan_ip_age = self.get_wan_ip_age(last_ip_change_date)
@@ -61,6 +65,7 @@ class DynDns:
         self.r.set("wan_ip_dns_status", 'success')
         self.set_dns_ip(current_ip)
         log.info("Successfully updated DNS")
+        self.notify(current_ip)
         exit(0)
 
     def get_domain_config(self):
@@ -77,6 +82,10 @@ class DynDns:
             exit(1)
         self.domains = domain_json["domains"]
         return True
+
+    def check_change_in_domain_config(self):
+        """Check if the domain config has changed."""
+        self.r.get("domain-config")
 
     def connect_to_redis(self):
         logging.info("Connecting to Redis Host: %s")
@@ -144,6 +153,32 @@ class DynDns:
             return self._get_wan_ip_from_icanhazip(api_url)
         else:
             return self._get_wan_ip_from_generic_api(api_url)
+
+    def notify(self, new_ip: str) -> bool:
+        """Send a notification of the updated IP."""
+        if not self.send_notifications:
+            return True
+
+        if not NOTIFY_URL or not NOTIFY_PASS:
+            print("Error: notification creds not set")
+            return False
+
+        headers = {
+            "Authorization": "Basic %s" % NOTIFY_PASS,
+            "Content-Type": "application/json"
+        }
+        data = {
+            "message": "Quigley DynDNS updated. New IP: %s" % new_ip,
+            "message_formatted": "Quigley DynDNS updated. New IP: %s" % new_ip,
+        }
+        response = requests.post(NOTIFY_URL, data=json.dumps(data), headers=headers)
+        if response.status_code != 201:
+            print("Error sending notification")
+            print(response.json())
+            return False
+        else:
+            print("Notification sent successfully")
+            return True
 
     def _get_wan_ip_from_generic_api(self, url):
         response = self._make_request(url)

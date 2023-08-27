@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: dyndns
 spec:
-  schedule: "*/20 * * * *"
+  schedule: "*/5 * * * *"
   jobTemplate:
     spec:
       template:
@@ -28,6 +28,16 @@ spec:
               value: "redis-password"
             - name: DOMAIN_FILE
               value: "/config/domains.json"
+            - name: NOTIFY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: notification-creds
+                  key: NOTIFY_URL
+            - name: NOTIFY_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: notification-creds
+                  key: NOTIFY_PASS
             volumeMounts:
             - name: domain-config
               mountPath: /config
