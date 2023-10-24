@@ -5,3 +5,4 @@ metadata:
 data:
   redis-host: "localhost"
   redis-db: "0"
+  force-update: "true"

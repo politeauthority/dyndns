@@ -26,7 +26,7 @@ REDIS_PASS = os.environ.get("REDIS_PASS")
 DOMAIN_FILE = os.environ.get("DOMAIN_FILE")
 NOTIFY_URL = os.environ.get("NOTIFY_URL")
 NOTIFY_PASS = os.environ.get("NOTIFY_PASS")
-
+FORCE_UPDATE = os.environ.get("FORCE_UPDATE", False)
 
 class DynDns:
 
@@ -39,9 +39,10 @@ class DynDns:
     def run(self, args):
         log.info("Starting DynDNS")
         self.get_domain_config()
-        force = False
         if len(args) > 1:
             if args[1] == "-f" or args[1] == "--force":
+                self.force = True
+            elif FORCE_UPDATE and FORCE_UPDATE == "true":
                 self.force = True
 
         last_ip_change_date = self.get_last_ip_change_date()
@@ -51,7 +52,7 @@ class DynDns:
         cached_wan_ip = self.get_cached_ip()
         current_ip = self.get_current_ip()
 
-        if not force:
+        if not self.force:
             # If the WAN ip hasn't changed we're done and can exit.
             if wan_ip_dns_status == 'success' and cached_wan_ip == current_ip:
                 log.info('IP "%s" has not changed, finishing.' % (current_ip))
