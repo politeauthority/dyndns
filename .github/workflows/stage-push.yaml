@@ -2,10 +2,9 @@ name: Stage Push
 
 on:
   push:
-    branches: ["stage", "cicd"]
+    branches: ["cicd"]
 
 jobs:
-
 	validate:
 		uses: ./.github/workflows/validate.yaml
 		secrets: inherit
