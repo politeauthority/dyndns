@@ -1,0 +1,32 @@
+name: Validate
+
+on:
+  workflow_call:
+    inputs:
+      cicd-version:
+        required: true
+        type: string
+      harbor-user:
+        required: true
+        type: string
+
+jobs:
+  helm:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: true
+    permissions:
+      pull-requests: read
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ inputs.cicd-version }}
+      credentials:
+        username: ${{ inputs.harbor-user }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Validate Kustomize Builds
+        run: |
+          echo "Testing Kustomize builds"
+          kustomize build kubernetes-manifests/base/
+          kustomize build kubernetes-manifests/env/generic
+          kustomize build kubernetes-manifests/env/colfax

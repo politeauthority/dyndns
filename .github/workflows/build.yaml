@@ -1,0 +1,69 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      cicd-version:
+        required: true
+        type: string
+      harbor-user:
+        required: true
+        type: string
+      tag-name:
+        required: true
+        type: string
+jobs:
+  build:
+    runs-on: self-hosted
+    container:
+      image: harbor.squid-ink.us/politeauthority/polite-cicd:${{ vars.CICD_VERSION }}
+      credentials:
+        username: ${{ vars.HARBOR_USER }}
+        password: ${{ secrets.HARBOR_PASSWORD }}
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Container
+        run: |
+          echo "Building"
+          docker build . -t dyndns
+
+      - uses: docker/login-action@v2
+        with:
+          registry: harbor.squid-ink.us
+          username: politeauthority
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Push Container - Harbor
+        run: |
+          VERSION=$(grep -o 'version = "[^"]*"' src/modules/version.py | cut -d '"' -f 2)
+          IMAGE_ID=$(docker images --filter "reference=dyndns" --format "{{.ID}}")
+          if [ "${{ inputs.tag-name }}" = "dev" ]; then
+            TAG="dev"
+          else
+            TAG=$VERSION
+          fi
+          docker tag ${IMAGE_ID} harbor.squid-ink.us/politeauthority/dyndns:${TAG}
+          docker push harbor.squid-ink.us/politeauthority/dyndns:${TAG}
+          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** ```harbor.squid-ink.us/politeauthority/dyndns:${TAG}```" >> $GITHUB_STEP_SUMMARY
+      
+      - uses: docker/login-action@v2
+        with:
+          username: politeauthority
+          password: ${{ secrets.DOCKER_TOKEN }}
+  
+      - name: Push Container - Docker Hub
+        run: |
+          VERSION=$(grep -o 'version = "[^"]*"' src/modules/version.py | cut -d '"' -f 2)
+          IMAGE_ID=$(docker images --filter "reference=dyndns" --format "{{.ID}}")
+          if [ "${{ inputs.tag-name }}" = "dev" ]; then
+            TAG="dev"
+          else
+            TAG=$VERSION
+          fi
+          docker tag ${IMAGE_ID} politeauthority/dyndns:${TAG}
+          docker push politeauthority/dyndns:${TAG}
+          echo "# Docker Build" >> $GITHUB_STEP_SUMMARY
+          echo "**Built:** ```politeauthority/dyndns:${VERSION}```" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,15 @@
+version: '3'
+vars:
+  REPO_DIR: "."
+
+tasks:
+  dev-cp:
+    cmds:
+      - |
+        NS="dyndns-dev"
+        # LABEL="app.kubernetes.io/name: dyndns-daemon"
+        POD=$(kubectl get pods -n $NS --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo $POD
+        kubectl cp -n ${NS} ./src ${POD}:/app/
+      - echo "Copied!"
+    silent: True

@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import random
+import subprocess
 import sys
 
 import arrow
@@ -28,6 +29,7 @@ NOTIFY_URL = os.environ.get("NOTIFY_URL")
 NOTIFY_PASS = os.environ.get("NOTIFY_PASS")
 FORCE_UPDATE = os.environ.get("FORCE_UPDATE", False)
 
+
 class DynDns:
 
     def __init__(self):
@@ -35,6 +37,7 @@ class DynDns:
         self.send_notifications = True
         self.domains = []
         self.connect_to_redis()
+        self.current_ip = None
 
     def run(self, args):
         log.info("Starting DynDNS")
@@ -51,6 +54,7 @@ class DynDns:
 
         cached_wan_ip = self.get_cached_ip()
         current_ip = self.get_current_ip()
+        self.current_ip = current_ip
 
         if not self.force:
             # If the WAN ip hasn't changed we're done and can exit.
@@ -223,6 +227,27 @@ class DynDns:
 
         return status
 
+    def dig_domains(self) -> dict:
+        """Check to see what dig has to say about all the domains we're managing, and make sure that
+        global DNS servers agree with what we believe our IP address to be.
+        """
+        results = {
+            "domains": []
+        }
+        import ipdb; ipdb.set_trace()
+        for domain in domains["domains"]:
+            subdomain = ""
+            if domain["host"] == "*":
+                subdomain = "test."
+            domain_to_test = "%s%s" % (subdomain, domain["domain"])
+            cmd = ["dig", "+short", domain_to_test]
+            result = subprocess.check_output(cmd)
+            ip_address = result.decode().replace("\n", "")
+            domain["ip_address"] = ip_address
+            results["domains"].append(domain)
+            print("%s - %s" % (ip_address, domain_to_test))
+        
+        return results
 
 if __name__ == "__main__":
     DynDns().run(sys.argv)
