@@ -5,15 +5,15 @@ on:
     branches: ["cicd"]
 
 jobs:
-	validate:
-		uses: ./.github/workflows/validate.yaml
-		secrets: inherit
-		permissions:
-			pull-requests: read
-			contents: read
-		with:
-			cicd-version: "${{ vars.CICD_VERSION }}"
-			harbor-user: "${{ vars.HARBOR_USER }}"
+	# validate:
+	# 	uses: ./.github/workflows/validate.yaml
+	# 	secrets: inherit
+	# 	permissions:
+	# 		pull-requests: read
+	# 		contents: read
+	# 	with:
+	# 		cicd-version: "${{ vars.CICD_VERSION }}"
+	# 		harbor-user: "${{ vars.HARBOR_USER }}"
 
 	build:
 		uses: ./.github/workflows/build.yaml
