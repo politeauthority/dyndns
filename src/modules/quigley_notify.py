@@ -8,10 +8,11 @@ import os
 import requests
 
 
-
+QUIGLEY_API_URL = os.environ.get("QUIGLEY_API_URL")
 BASIC_AUTH = os.environ.get("QUIGLEY_API_BASIC_AUTH")
 
-def send_notification(data = dict, route: str = None):
+
+def send_notification(message: str, route: str = None):
     """Send a notifcation to the Quigley Api.
     :param data:
     {
@@ -26,21 +27,25 @@ def send_notification(data = dict, route: str = None):
     if not BASIC_AUTH:
         print("ERROR: Missing env var: QUIGLEY_API_BASIC_AUTH")
         return False
-    API_URL = "https://api.alix.lol"
+    if not QUIGLEY_API_URL:
+        print("ERROR: Missing env var: QUIGLEY_API_URL")
+        return False
     if not route:
         route = "notify"
     headers = {
         "Authorization": "Basic %s" % BASIC_AUTH,
         "Content-Type": "application/json"
     }
+    data = {
+        "message": message
+    }
     response = requests.post(
-        "%s/%s" % (API_URL, route),
+        "%s/%s" % (QUIGLEY_API_URL, route),
         data=json.dumps(data),
         headers=headers)
     if response.status_code in [200, 201]:
         print("Error sending notification")
         print(response.text)
-        # print(response.json())
     else:
         print("Notification sent successfully")
 

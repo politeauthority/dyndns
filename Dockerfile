@@ -7,7 +7,7 @@ RUN apk update && apk add bash
 WORKDIR /app
 
 ADD src /app
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip bind-tools
 RUN pip install -r /app/requirements.txt
 
 CMD /app/dyndns.py

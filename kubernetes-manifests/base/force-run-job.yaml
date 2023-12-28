@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dyndns-force
+spec:
+  template:
+    spec:
+      containers:
+      - name: dyndns-force
+        image: politeauthority/dyndns:0.0.1
+        env:
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: dynsdns-config
+              key: redis-host
+        - name: REDIS_DB
+          valueFrom:
+            configMapKeyRef:
+              name: dynsdns-config
+              key: redis-db
+        - name: REDIS_PASS
+          value: "redis-password"
+        - name: REDIS_PASS
+          value: "redis-password"
+        - name: DOMAIN_FILE
+          value: "/config/domains.json"
+        volumeMounts:
+        - name: domain-config
+          mountPath: /config
+        command:
+        - python3
+        - /app/dyndns.py
+      restartPolicy: Never
+      volumes:
+        - name: domain-config
+          secret:
+            secretName: domain-config
+  backoffLimit: 4

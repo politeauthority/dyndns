@@ -8,11 +8,10 @@ spec:
     spec:
       template:
         spec:
-          imagePullSecrets:
           containers:
           - name: dyndns
             image: politeauthority/dyndns:0.0.1
-            imagePullPolicy: Always
+            imagePullPolicy: IfNotPresent
             env:
             - name: REDIS_HOST
               valueFrom:
@@ -33,16 +32,16 @@ spec:
                 configMapKeyRef:
                   name: dynsdns-config
                   key: force-update
-            - name: NOTIFY_URL
+            - name: QUIGLEY_API_URL
               valueFrom:
                 secretKeyRef:
                   name: notification-creds
-                  key: NOTIFY_URL
-            - name: NOTIFY_PASS
+                  key: QUIGLEY_API_URL
+            - name: QUIGLEY_API_BASIC_AUTH
               valueFrom:
                 secretKeyRef:
                   name: notification-creds
-                  key: NOTIFY_PASS
+                  key: QUIGLEY_API_BASIC_AUTH
             volumeMounts:
             - name: domain-config
               mountPath: /config
