@@ -8,7 +8,6 @@ on:
 jobs:
 	build:
 		uses: ./.github/workflows/build.yaml
-    needs: validate
 		secrets: inherit
 		permissions:
 			pull-requests: read
