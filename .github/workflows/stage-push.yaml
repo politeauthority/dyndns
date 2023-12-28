@@ -2,7 +2,8 @@ name: Stage Push
 
 on:
   push:
-    branches: ["cicd"]
+    branches: 
+      - cicd
 
 jobs:
 	build:
