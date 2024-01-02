@@ -239,7 +239,9 @@ class DynDns:
             print("%s - %s" % (ip_address, domain_to_test))
             if ip_address != self.current_ip:
                 self.force = True
-                print("%s IP %s does not match current IP:%s" %  (domain["domain"], domain["host"]))
+                print("IP %s does not match current IP:%s. Setting force to true." %  (
+                    domain["domain"],
+                    domain["host"]))
         return True
 
 if __name__ == "__main__":
