@@ -7,5 +7,5 @@ patches:
   - target:
       version: v1
       kind: ConfigMap
-      name: dynsdns-config
+      name: dyndns-config
     path: configmap-patch.yaml

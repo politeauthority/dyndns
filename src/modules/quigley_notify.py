@@ -10,6 +10,7 @@ import requests
 
 QUIGLEY_API_URL = os.environ.get("QUIGLEY_API_URL")
 BASIC_AUTH = os.environ.get("QUIGLEY_API_BASIC_AUTH")
+ROOM_ID =  os.environ.get("QUIGLEY_API_ROOM")
 
 
 def send_notification(message: str, route: str = None):
@@ -37,7 +38,8 @@ def send_notification(message: str, route: str = None):
         "Content-Type": "application/json"
     }
     data = {
-        "message": message
+        "message": message,
+        "room_id": ROOM_ID
     }
     response = requests.post(
         "%s/%s" % (QUIGLEY_API_URL, route),

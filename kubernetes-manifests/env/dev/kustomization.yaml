@@ -13,7 +13,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/jobTemplate/spec/template/spec/containers/0/image
-        value: politeauthority/dyndns:0.0.1
+        value: politeauthority/dyndns:0.0.4
   - target:
       kind: CronJob
     patch: |-

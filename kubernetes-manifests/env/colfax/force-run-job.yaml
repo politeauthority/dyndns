@@ -7,7 +7,10 @@ spec:
     spec:
       containers:
       - name: dyndns-force
-        image: politeauthority/dyndns:0.0.1
+        image: politeauthority/dyndns:0.0.5
+        command:
+        - python3
+        - /app/dyndns.py
         env:
         - name: REDIS_HOST
           valueFrom:
@@ -21,19 +24,15 @@ spec:
               key: redis-db
         - name: REDIS_PASS
           value: "redis-password"
-        - name: REDIS_PASS
-          value: "redis-password"
         - name: DOMAIN_FILE
           value: "/config/domains.json"
         volumeMounts:
         - name: domain-config
           mountPath: /config
-        command:
-        - python3
-        - /app/dyndns.py
       restartPolicy: Never
       volumes:
         - name: domain-config
           secret:
             secretName: domain-config
-  backoffLimit: 4
+  backoffLimit: 2
+  

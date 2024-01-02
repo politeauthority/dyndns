@@ -4,6 +4,7 @@ namespace: dyndns
 resources:
   - ../../base
   - sealed-secret-domains.yaml
+  - sealed-secret-notification.yaml
 patches:
   # Pull from docker hub for now
   - target:
@@ -11,27 +12,41 @@ patches:
     patch: |-
       - op: replace
         path: /spec/jobTemplate/spec/template/spec/containers/0/image
-        value: politeauthority/dyndns:0.0.2
-  - target:
-      kind: CronJob
+        value: politeauthority/dyndns:0.0.5
+    patch: |-
+      - op: add
+        path: /spec/jobTemplate/spec/template/spec/containers/0/env/-
+        value:
+          name: QUIGLEY_API_BASIC_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: notification-creds
+              key: QUIGLEY_API_BASIC_AUTH
+      - op: add
+        path: /spec/jobTemplate/spec/template/spec/containers/0/env/-
+        value:
+          name: QUIGLEY_API_ROOM
+          valueFrom:
+            secretKeyRef:
+              name: notification-creds
+              key: QUIGLEY_API_ROOM
+      - op: add
+        path: /spec/jobTemplate/spec/template/spec/containers/0/env/-
+        value:
+          name: QUIGLEY_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: notification-creds
+              key: QUIGLEY_API_URL
     patch: |-
       - op: add
         path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
         value: [{ name: docker-hub }]
-  # - target:
-  #     kind: CronJob
-  #   patch: |-
-  #     - op: replace
-  #       path: /spec/jobTemplate/spec/template/spec/containers/0/image
-  #       value: harbor.squid-ink.us/politeauthority/dyndns:0.0.1
-  # - target:
-  #     kind: CronJob
-  #   patch: |-
-  #     - op: add
-  #       path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
-  #       value: [{ name: harbor }]
   - target:
       version: v1
       kind: ConfigMap
-      name: dynsdns-config
-    path: patch-configmap.yaml
+      name: dyndns-config
+    patch: |-
+      - op: replace
+        path: /data/redis-host
+        value: redis.q-redis.svc.cluster.local

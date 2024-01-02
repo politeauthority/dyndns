@@ -10,18 +10,18 @@ spec:
         spec:
           containers:
           - name: dyndns
-            image: politeauthority/dyndns:0.0.1
+            image: politeauthority/dyndns:latest
             imagePullPolicy: IfNotPresent
             env:
             - name: REDIS_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: dynsdns-config
+                  name: dyndns-config
                   key: redis-host
             - name: REDIS_DB
               valueFrom:
                 configMapKeyRef:
-                  name: dynsdns-config
+                  name: dyndns-config
                   key: redis-db
             - name: REDIS_PASS
               value: "redis-password"
@@ -30,18 +30,8 @@ spec:
             - name: FORCE_UPDATE
               valueFrom:
                 configMapKeyRef:
-                  name: dynsdns-config
+                  name: dyndns-config
                   key: force-update
-            - name: QUIGLEY_API_URL
-              valueFrom:
-                secretKeyRef:
-                  name: notification-creds
-                  key: QUIGLEY_API_URL
-            - name: QUIGLEY_API_BASIC_AUTH
-              valueFrom:
-                secretKeyRef:
-                  name: notification-creds
-                  key: QUIGLEY_API_BASIC_AUTH
             volumeMounts:
             - name: domain-config
               mountPath: /config
