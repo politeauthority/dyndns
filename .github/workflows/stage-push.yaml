@@ -2,13 +2,24 @@ name: Stage Push
 
 on:
   push:
-    branches: 
-      - cicd
+    branches: ["stage", "cicd"]
 
 jobs:
+
+	validate:
+		uses: ./.github/workflows/validate.yaml
+		secrets: inherit
+		permissions:
+			pull-requests: read
+			contents: read
+		with:
+			cicd-version: "${{ vars.CICD_VERSION }}"
+			harbor-user: "${{ vars.HARBOR_USER }}"
+
 	build:
 		uses: ./.github/workflows/build.yaml
 		secrets: inherit
+    needs: validate
 		permissions:
 			pull-requests: read
 			contents: read
