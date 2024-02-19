@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: dyndns
 resources:
   - ../../base
-  - sealed-secret-domains.yaml
+  # - sealed-secret-domains.yaml
 patches:
   # Pull from docker hub for now
   - target:
@@ -17,7 +17,7 @@ patches:
     patch: |-
       - op: add
         path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
-        value: [{ name: docker-hub }]
+        value: [{ name: docker-hub-registry}]
   # - target:
   #     kind: CronJob
   #   patch: |-
