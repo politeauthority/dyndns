@@ -12,7 +12,7 @@ spec:
           containers:
           - name: dyndns
             image: politeauthority/dyndns:0.0.1
-            imagePullPolicy: Always
+            imagePullPolicy: IfNotPresent
             env:
             - name: REDIS_HOST
               valueFrom:
