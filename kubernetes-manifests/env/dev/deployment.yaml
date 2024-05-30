@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dyndns-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dyndns-dev
+  template:
+    metadata:
+      labels:
+        app: dyndns-dev
+    spec:
+      containers:
+        - name: dyndns-dev
+          image: harbor.squid-ink.us/politeauthority/dyndns:latest
+          command: ["tail", "-f", "/dev/null"]
+          env:
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: dynsdns-config
+                  key: redis-host
+            - name: REDIS_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: dynsdns-config
+                  key: redis-db
+            - name: REDIS_PASS
+              value: "redis-password"
+            - name: DOMAIN_FILE
+              value: "/config/domains.json"
+            - name: FORCE_UPDATE
+              valueFrom:
+                configMapKeyRef:
+                  name: dynsdns-config
+                  key: force-update
+            - name: NOTIFY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dyndns-creds
+                  key: QUIGLEY_API_BASIC_AUTH
+          volumeMounts:
+            - name: domain-config
+              mountPath: /config
+      volumes:
+        - name: domain-config
+          secret:
+            secretName: domain-config
+      imagePullSecrets:
+        - name: harbor-registry

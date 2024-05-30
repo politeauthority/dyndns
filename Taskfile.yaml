@@ -3,8 +3,18 @@ vars:
   APP_SRC: ./src
   K8S_NS: "dyndns"
   K8S_DEV_APP: "dyndns-dev"
+  K8S_DEV_KUSTOMIZE: "kubernetes-manifests/env/dev"
+  IMAGE: "politeauthority/dyndns"
 
 tasks:
+  dev-deploy:
+    cmds:
+      - |
+        NS="{{.K8S_NS}}"
+        KUSTOM="{{.K8S_DEV_KUSTOMIZE}}"
+        kustomize build $KUSTOM | kubectl apply -f -
+        echo "{{.K8S_DEV_KUSTOMIZE}}"
+    silent: True
   dev-exec:
     cmds:
       - |
@@ -14,6 +24,7 @@ tasks:
         echo $POD
         kubectl exec -it -n ${NS} -it ${POD} -- sh
     silent: True
+
   dev-cp:
     cmds:
       - |
@@ -24,6 +35,21 @@ tasks:
 
         kubectl cp -n ${NS} {{.APP_SRC}} ${POD}:/app/
       - echo "Copied and Built DynDns!"
+    silent: True
+
+  dev-cp-pl:
+    cmds:
+      - |
+        NS="{{.K8S_NS}}"
+        APP="{{.K8S_DEV_APP}}"
+        POD=$(kubectl get pods -n ${NS} -l app=${APP} --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo $POD
+        kubectl cp -n ${NS} /Users/alix/Programming/repos/polite-lib ${POD}:/
+        kubectl exec -n ${NS} ${POD} -- sh -c "rm -rf /usr/local/lib/python3.10/site-packages/polite_lib-*-py3.10.egg/"
+        kubectl exec -n ${NS} ${POD} -- sh -c "cd /polite-lib/src/ &&  python3 setup.py build"
+        kubectl exec -n ${NS} ${POD} -- sh -c "cd /polite-lib/src/ && python3 setup.py install"
+
+      - echo "Copied and Built Polite Lib!"
     silent: True
 
   build-and-push:
