@@ -1,14 +1,36 @@
 version: "3"
 vars:
-  REPO_DIR: "."
+  APP_SRC: ./src
+  K8S_NS: "dyndns"
+  K8S_DEV_APP: "dyndns-dev"
 
 tasks:
+  dev-exec:
+    cmds:
+      - |
+        NS="{{.K8S_NS}}"
+        APP="{{.K8S_DEV_APP}}"
+        POD=$(kubectl get pods -n ${NS} -l app=${APP} --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo $POD
+        kubectl exec -it -n ${NS} -it ${POD} -- sh
+    silent: True
+  dev-cp:
+    cmds:
+      - |
+        NS="{{.K8S_NS}}"
+        APP="{{.K8S_DEV_APP}}"
+        POD=$(kubectl get pods -n ${NS} -l app=${APP} --no-headers --field-selector=status.phase=Running | cut -d' ' -f1)
+        echo $POD
+
+        kubectl cp -n ${NS} {{.APP_SRC}} ${POD}:/app/
+      - echo "Copied and Built DynDns!"
+    silent: True
+
   build-and-push:
     cmds:
-       - |
+      - |
         cp -r src docker/
         docker build --no-cache -t harbor.squid-ink.us/politeauthority/dyndns:{{.CLI_ARGS}} docker/
         rm -rf docker/src
         docker push harbor.squid-ink.us/politeauthority/dyndns:{{.CLI_ARGS}}
     silent: True
-
