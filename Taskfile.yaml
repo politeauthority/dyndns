@@ -1,0 +1,14 @@
+version: "3"
+vars:
+  REPO_DIR: "."
+
+tasks:
+  build-and-push:
+    cmds:
+       - |
+        cp -r src docker/
+        docker build --no-cache -t harbor.squid-ink.us/politeauthority/dyndns:{{.CLI_ARGS}} docker/
+        rm -rf docker/src
+        docker push harbor.squid-ink.us/politeauthority/dyndns:{{.CLI_ARGS}}
+    silent: True
+
