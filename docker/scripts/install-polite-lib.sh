@@ -1,16 +1,16 @@
 #!/bin/bash
-# Install Polite Lib v0.0.2
+# Install Polite Lib v0.0.3.
 # Pull and install the Polite-Lib python library.
 # This is mostly setup for Docker installations.
 set -e
 INSTALL_DIR=""
 if [ -z "$LIB_DIR" ]; then
-    mkdir -p ${LIB_DIR}
     cd ${LIB_DIR}
     INSTALL_DIR="${LIB_DIR}/polite-lib"
 else
-    INSTALL_DIR="./polite-lib"
+    INSTALL_DIR="/polite-lib"
 fi
+exit 0
 
 if [ -z "$POLITE_LIB_BRANCH" ]; then
 	POLITE_LIB_BRANCH="main"
@@ -29,3 +29,4 @@ pip3 install -r requirements.txt
 python3 setup.py build
 python3 setup.py install
 echo "Installed successfully"
+
