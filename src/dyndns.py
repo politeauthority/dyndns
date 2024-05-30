@@ -11,6 +11,7 @@ import sys
 import arrow
 import redis
 import requests
+# from polite_lib
 
 LOG_LEVEL=logging.DEBUG
 log_format = logging.Formatter('[%(asctime)s] [%(levelname)s] - %(message)s')
