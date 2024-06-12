@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: dyndns
 spec:
-  schedule: "*/5 * * * *"
+  schedule: "*/10 * * * *"
   jobTemplate:
     spec:
       template:
@@ -12,7 +12,7 @@ spec:
           containers:
           - name: dyndns
             image: politeauthority/dyndns:0.0.1
-            imagePullPolicy: Always
+            imagePullPolicy: IfNotPresent
             env:
             - name: REDIS_HOST
               valueFrom:
@@ -33,16 +33,20 @@ spec:
                 configMapKeyRef:
                   name: dynsdns-config
                   key: force-update
+            # - name: NOTIFY_URL
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: notification-creds
+            #       key: NOTIFY_URL
+            # - name: NOTIFY_PASS
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: notification-creds
+            #       key: NOTIFY_PASS
             - name: NOTIFY_URL
-              valueFrom:
-                secretKeyRef:
-                  name: notification-creds
-                  key: NOTIFY_URL
+              value: "none"
             - name: NOTIFY_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: notification-creds
-                  key: NOTIFY_PASS
+              value: "none"
             volumeMounts:
             - name: domain-config
               mountPath: /config
