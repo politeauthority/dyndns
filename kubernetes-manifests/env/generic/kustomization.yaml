@@ -3,9 +3,3 @@ kind: Kustomization
 namespace: dyndns
 resources:
   - ../../base
-patches:
-  - target:
-      version: v1
-      kind: ConfigMap
-      name: dynsdns-config
-    path: configmap-patch.yaml

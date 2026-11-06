@@ -3,35 +3,13 @@ kind: Kustomization
 namespace: dyndns
 resources:
   - ../../base
-  - sealed-secret-domains.yaml
+  # domain-config is created by hand on this cluster and isn't managed from this file.
+  # - sealed-secret-domains.yaml
 patches:
-  # Pull from docker hub for now
-  - target:
-      kind: CronJob
-    patch: |-
-      - op: replace
-        path: /spec/jobTemplate/spec/template/spec/containers/0/image
-        value: politeauthority/dyndns:0.0.1
+  # Stay on Docker Hub. harbor.alix.lol depends on the DNS this job maintains.
   - target:
       kind: CronJob
     patch: |-
       - op: add
         path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
-        value: [{ name: docker-hub }]
-  # - target:
-  #     kind: CronJob
-  #   patch: |-
-  #     - op: replace
-  #       path: /spec/jobTemplate/spec/template/spec/containers/0/image
-  #       value: harbor.squid-ink.us/politeauthority/dyndns:0.0.1
-  # - target:
-  #     kind: CronJob
-  #   patch: |-
-  #     - op: add
-  #       path: /spec/jobTemplate/spec/template/spec/imagePullSecrets
-  #       value: [{ name: harbor }]
-  - target:
-      version: v1
-      kind: ConfigMap
-      name: dynsdns-config
-    path: patch-configmap.yaml
+        value: [{ name: docker-hub-registry }]

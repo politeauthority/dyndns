@@ -3,4 +3,3 @@ kind: Kustomization
 namespace: dyndns
 resources:
   - cronjob.yaml
-  - configmap.yaml
