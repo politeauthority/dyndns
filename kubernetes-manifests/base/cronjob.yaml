@@ -12,7 +12,8 @@ spec:
     spec:
       # The next scheduled run is the retry. A container restart could mask the failure.
       backoffLimit: 0
-      activeDeadlineSeconds: 180
+      # Includes image pull time. A cold Docker Hub pull has taken 4 minutes.
+      activeDeadlineSeconds: 420
       template:
         spec:
           restartPolicy: Never
