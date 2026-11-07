@@ -1,3 +1,0 @@
-- op: replace
-  path: /data/redis-host
-  value: redis.q-redis.svc.cluster.local

@@ -1,0 +1,14 @@
+# Runs next to the live job, logging decisions and writing nothing.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dyndns
+namePrefix: dry-run-
+resources:
+  - ../colfax
+patches:
+  - target:
+      kind: CronJob
+    patch: |-
+      - op: replace
+        path: /spec/jobTemplate/spec/template/spec/containers/0/env/1/value
+        value: "true"

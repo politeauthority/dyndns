@@ -4,53 +4,54 @@ metadata:
   name: dyndns
 spec:
   schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 120
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      # The next scheduled run is the retry. A container restart could mask the failure.
+      backoffLimit: 0
+      activeDeadlineSeconds: 180
       template:
         spec:
-          imagePullSecrets:
+          restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/arch: amd64
           containers:
           - name: dyndns
-            image: politeauthority/dyndns:0.0.1
-            imagePullPolicy: Always
+            image: politeauthority/dyndns:0.1.0
+            imagePullPolicy: IfNotPresent
             env:
-            - name: REDIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: dynsdns-config
-                  key: redis-host
-            - name: REDIS_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: dynsdns-config
-                  key: redis-db
-            - name: REDIS_PASS
-              value: "redis-password"
             - name: DOMAIN_FILE
-              value: "/config/domains.json"
-            - name: FORCE_UPDATE
-              valueFrom:
-                configMapKeyRef:
-                  name: dynsdns-config
-                  key: force-update
-            - name: NOTIFY_URL
-              valueFrom:
-                secretKeyRef:
-                  name: notification-creds
-                  key: NOTIFY_URL
-            - name: NOTIFY_PASS
+              value: /config/domains.json
+            - name: DRY_RUN
+              value: "false"
+            - name: QUIGLEY_URL
+              value: http://quigley-api.quigley-api.svc
+            - name: QUIGLEY_USER
               valueFrom:
                 secretKeyRef:
-                  name: notification-creds
-                  key: NOTIFY_PASS
+                  name: dyndns-notify
+                  key: QUIGLEY_USER
+                  optional: true
+            - name: QUIGLEY_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dyndns-notify
+                  key: QUIGLEY_KEY
+                  optional: true
+            resources:
+              requests:
+                cpu: 10m
+                memory: 48Mi
+              limits:
+                memory: 128Mi
             volumeMounts:
             - name: domain-config
               mountPath: /config
-            command:
-              - python3
-              - /app/dyndns.py
-          restartPolicy: OnFailure
+              readOnly: true
           volumes:
-            - name: domain-config
-              secret:
-                secretName: domain-config
+          - name: domain-config
+            secret:
+              secretName: domain-config
